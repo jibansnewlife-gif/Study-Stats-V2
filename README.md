@@ -1,5 +1,29 @@
 # StudyStats Native
 
+## v0.1.1 — Sessions + Graph
+
+### 🚀 Added
+
+* Session input form (minutes + subject)
+* Session history table (date, duration, subject)
+* Weekly graph (Mon–Sun fixed view)
+* Graph auto-updates on new session
+* Graph renders empty state on launch
+
+### 🎨 UI
+
+* Split layout (table + graph)
+* Dark-themed matplotlib integration
+* Improved spacing and layout balance
+
+### ⚙️ Improvements
+
+* App launches maximized by default
+* Better input validation + feedback
+
+---
+
+
 A native desktop version of StudyStats built using **PySide6 (Qt for Python)**.
 
 ## 🚀 Features
