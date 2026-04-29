@@ -1,0 +1,19 @@
+# Python
+__pycache__/
+*.pyc
+
+# Virtual env (if any)
+venv/
+.env/
+
+# Build files
+dist/
+build/
+*.spec
+
+# OS junk
+.DS_Store
+Thumbs.db
+
+# Database (optional)
+data/data.db
