@@ -1,19 +1,100 @@
+/* DESIGN SYSTEM:
+   Backgrounds: #0d1117 (Deep), #161b22 (Surface), #21262d (Elevated)
+   Accents: #d4af5f (Gold), #58a6ff (Soft Blue)
+   Text: #f0f6fc (Primary), #8b949e (Secondary)
+*/
+
 QMainWindow {
-    background-color: #0d1520;
+    background-color: #0d1117;
 }
 
+/* Base Widget Styling */
 QWidget {
-    color: white;
-    font-family: Arial;
+    color: #f0f6fc;
+    font-family: "Segoe UI", Roboto, Arial, sans-serif; /* Modern stack */
+    font-size: 13px;
 }
 
+/* Sidebar - Subtle contrast with main window */
+Sidebar {
+    background-color: #010409;
+    border-right: 1px solid #30363d;
+}
+
+#sidebarTitle {
+    font-size: 20px;
+    font-weight: 700;
+    color: #d4af5f;
+    padding: 20px 15px;
+    letter-spacing: 1px;
+}
+
+/* Navigation Buttons */
 QPushButton {
-    background-color: #d4af5f;
+    background-color: transparent;
+    color: #8b949e;
     border: none;
-    padding: 8px;
-    margin: 4px;
+    text-align: left;
+    padding: 12px 16px;
+    margin: 4px 10px;
+    border-radius: 6px;
+    font-weight: 500;
 }
 
 QPushButton:hover {
-    background-color: #e0c070;
+    background-color: #161b22;
+    color: #f0f6fc;
+}
+
+QPushButton:pressed {
+    background-color: #0d1117;
+}
+
+/* Active Navigation State */
+QPushButton[active="true"] {
+    background-color: rgba(212, 175, 95, 0.15); /* Subtle gold tint */
+    color: #d4af5f;
+    border-left: 3px solid #d4af5f; /* Accent indicator */
+    border-top-left-radius: 0px;
+    border-bottom-left-radius: 0px;
+}
+
+/* Cards / Information Containers */
+#card {
+    background-color: #161b22;
+    border: 1px solid #30363d;
+    border-radius: 12px;
+}
+
+#cardTitle {
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    color: #8b949e;
+    letter-spacing: 0.5px;
+}
+
+#cardValue {
+    font-size: 32px;
+    font-weight: 700;
+    color: #ffffff;
+    margin-top: 5px;
+}
+
+/* Scrollbars - The hallmark of professional apps */
+QScrollBar:vertical {
+    border: none;
+    background: #0d1117;
+    width: 10px;
+    margin: 0px;
+}
+
+QScrollBar::handle:vertical {
+    background: #30363d;
+    min-height: 20px;
+    border-radius: 5px;
+}
+
+QScrollBar::handle:vertical:hover {
+    background: #484f58;
 }
