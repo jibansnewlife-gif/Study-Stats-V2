@@ -3,11 +3,13 @@ from PySide6.QtWidgets import (
     QFrame, QLineEdit, QPushButton, QTableWidget,
     QTableWidgetItem
 )
-from datetime import datetime
+from datetime import datetime, timedelta
 from collections import defaultdict
 
 from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
+
+from core.database import add_session, get_sessions
 
 
 # -------------------
@@ -48,8 +50,6 @@ class GraphWidget(QWidget):
         self.setLayout(layout)
 
     def update_graph(self, sessions):
-        from datetime import datetime, timedelta
-
         self.figure.clear()
         ax = self.figure.add_subplot(111)
 
@@ -58,7 +58,7 @@ class GraphWidget(QWidget):
         ax.set_facecolor("#161b22")
 
         # -------------------
-        # GET CURRENT WEEK (Mon → Sun)
+        # CURRENT WEEK
         # -------------------
         today = datetime.now()
         start_of_week = today - timedelta(days=today.weekday())
@@ -70,7 +70,7 @@ class GraphWidget(QWidget):
         for i in range(7):
             day = start_of_week + timedelta(days=i)
             date_str = day.strftime("%Y-%m-%d")
-            label = day.strftime("%a")  # Mon, Tue...
+            label = day.strftime("%a")
 
             week_dates.append(date_str)
             week_labels.append(label)
@@ -86,7 +86,7 @@ class GraphWidget(QWidget):
         values = [week_data[d] for d in week_dates]
 
         # -------------------
-        # DRAW GRAPH
+        # DRAW
         # -------------------
         ax.bar(week_labels, values, color="#d4af5f")
 
@@ -96,9 +96,17 @@ class GraphWidget(QWidget):
         ax.tick_params(axis='x', colors="#8b949e")
         ax.tick_params(axis='y', colors="#8b949e")
 
-        # remove borders
         for spine in ax.spines.values():
             spine.set_visible(False)
+
+        # EMPTY STATE TEXT
+        if all(v == 0 for v in values):
+            ax.text(
+                0.5, 0.5, "No data yet",
+                color="#8b949e",
+                ha='center', va='center',
+                transform=ax.transAxes
+            )
 
         self.canvas.draw()
 
@@ -112,7 +120,9 @@ class Dashboard(QWidget):
 
         self.total_minutes = 0
         self.sessions = 0
-        self.session_list = []
+
+        # 🔥 LOAD FROM DATABASE
+        self.session_list = get_sessions()
 
         layout = QVBoxLayout()
         layout.setSpacing(20)
@@ -154,8 +164,23 @@ class Dashboard(QWidget):
         self.table.setColumnCount(3)
         self.table.setHorizontalHeaderLabels(["Date", "Minutes", "Subject"])
 
+        # 🔥 LOAD DATA INTO TABLE
+        for date, minutes, subject in self.session_list:
+            self.total_minutes += minutes
+            self.sessions += 1
+
+            row = self.table.rowCount()
+            self.table.insertRow(row)
+
+            self.table.setItem(row, 0, QTableWidgetItem(date))
+            self.table.setItem(row, 1, QTableWidgetItem(str(minutes)))
+            self.table.setItem(row, 2, QTableWidgetItem(subject))
+
+        self.total_card.value.setText(str(self.total_minutes))
+        self.sessions_card.value.setText(str(self.sessions))
+
         # -------------------
-        # GRAPH + TABLE LAYOUT
+        # GRAPH + TABLE
         # -------------------
         bottom_layout = QHBoxLayout()
         bottom_layout.setSpacing(20)
@@ -170,7 +195,7 @@ class Dashboard(QWidget):
         layout.addLayout(bottom_layout)
 
         # -------------------
-        # INFO TEXT
+        # INFO
         # -------------------
         self.info = QLabel("")
         self.info.setObjectName("infoText")
@@ -179,11 +204,11 @@ class Dashboard(QWidget):
 
         self.setLayout(layout)
 
-        # 🔥 DRAW EMPTY GRAPH ON START
+        # 🔥 DRAW GRAPH ON START
         self.graph.update_graph(self.session_list)
 
     # -------------------
-    # LOGIC
+    # ADD SESSION
     # -------------------
     def handle_add(self):
         minutes_text = self.minutes_input.text()
@@ -208,6 +233,9 @@ class Dashboard(QWidget):
         session = (date, minutes, subject)
         self.session_list.append(session)
 
+        # 🔥 SAVE TO DATABASE
+        add_session(date, minutes, subject)
+
         # UPDATE STATS
         self.total_minutes += minutes
         self.sessions += 1
@@ -216,14 +244,14 @@ class Dashboard(QWidget):
         self.sessions_card.value.setText(str(self.sessions))
 
         # UPDATE TABLE
-        row_position = self.table.rowCount()
-        self.table.insertRow(row_position)
+        row = self.table.rowCount()
+        self.table.insertRow(row)
 
-        self.table.setItem(row_position, 0, QTableWidgetItem(date))
-        self.table.setItem(row_position, 1, QTableWidgetItem(str(minutes)))
-        self.table.setItem(row_position, 2, QTableWidgetItem(subject))
+        self.table.setItem(row, 0, QTableWidgetItem(date))
+        self.table.setItem(row, 1, QTableWidgetItem(str(minutes)))
+        self.table.setItem(row, 2, QTableWidgetItem(subject))
 
-        # 🔥 UPDATE GRAPH
+        # UPDATE GRAPH
         self.graph.update_graph(self.session_list)
 
         # FEEDBACK
